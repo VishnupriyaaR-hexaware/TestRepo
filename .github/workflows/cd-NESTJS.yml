@@ -15,6 +15,7 @@ name: cd-NESTJS
     branches:
       - ReactMRA
       - ReactMRA
+      - ReactMRA
     paths:
       - '**/NESTJS/**'
     types:
@@ -40,6 +41,19 @@ jobs:
           echo ENVIRONMENT=uat>> $GITHUB_ENV
           echo "RUN_NUMBER=${{github.event.workflow_run.run_number}}" >> $GITHUB_ENV
           echo "BRANCH_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+      - if: |
+          github.event.inputs.environment == '' && contains(github.event.workflow_run.head_branch, 'ReactMRA')
+        name: Set uat env
+        run: |-
+          echo ENVIRONMENT=uat>> $GITHUB_ENV
+          echo "RUN_NUMBER=${{github.event.workflow_run.run_number}}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+      - if: |
+          github.event.inputs.environment == 'uat'
+        run: |
+          echo ENVIRONMENT=uat>> $GITHUB_ENV
+          echo "RUN_NUMBER=${{github.event.inputs.run_number}}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
       - if: |
           github.event.inputs.environment == 'uat'
         run: |
@@ -80,6 +94,6 @@ jobs:
       - name: deploy
         uses: azure/webapps-deploy@v2
         with:
-          app-name: web_wiwi_rnd
-          publish-profile: ${{ secrets.AZURE_WEB_WIWI_RND_PUBLISH_PROFILE }}
+          app-name: app_rapidx_notification_test
+          publish-profile: ${{ secrets.AZURE_APP_RAPIDX_NOTIFICATION_TEST_PUBLISH_PROFILE }}
           images: ${{ secrets.CR_LOGIN_SERVER }}/${{ env.REPOSITORY_NAME }}:${{needs.set-environment.outputs.run_number}}
